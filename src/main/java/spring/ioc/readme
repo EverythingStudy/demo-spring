@@ -1,0 +1,7 @@
+spring ioc指的是控制反转，IOC容器负责实例化、定位、配置应用程序中的对象及建立这些对象间的依赖。
+交由Spring容器统一进行管理，从而实现松耦合
+SpringIoc流程-tomcat启动servlet容器-->通过web.xml加载spring配置信息扫描包下获取class信息-->反射解析class内的注解信息反射注入类中注解的属性-->封装反射后的类实例对象-->以(beanid,bean实例化对象)的形式封装到map-->通过beanid获取实例化对象
+1.自定义类SpringIocAutowired(属性注解)和SpringIocServer(类注解)
+2.自定义IOC容器类，SpringIocContext--反射实例化bean,initBean--依赖注入属性initBeanField
+3.自定义应用类 SpringIocServiceTest--依赖SpringIocBean作为属性
+4.模拟启动加载容器类--SpringIoc
