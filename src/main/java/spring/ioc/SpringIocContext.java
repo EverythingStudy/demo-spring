@@ -69,8 +69,10 @@ public class SpringIocContext {
                 for (Field field : fields) {
                     SpringIocAutowired springIocAutowired = (SpringIocAutowired) field.getAnnotation(SpringIocAutowired.class);
                     if (springIocAutowired != null) {
+                        //开通私有方法赋值
                         field.setAccessible(true);
                         System.out.println(beans.get(field.getName()));
+                        //依赖赋值
                         field.set(object, beans.get(field.getName()));
                     }
                 }
