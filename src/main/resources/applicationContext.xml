@@ -107,4 +107,15 @@
     <!--AOP代理测试-->
     <bean id="nativeWarter" class="spring.aop.aspectJ.NativeWaiter"></bean>
     <bean class="spring.aop.aspectJ.PreGreetingAspect"></bean>
+    <bean class="org.springframework.aop.framework.ProxyFactoryBean"/>
+    <bean class="spring.bean.Role">
+        <property name="id" value="12"/>
+        <property name="name" value="testRole"/>
+
+    </bean>
+    <bean class="spring.bean.User">
+        <property name="name" value="testUser"/>
+        <property name="age" value="12"/>
+    </bean>
+
 </beans>

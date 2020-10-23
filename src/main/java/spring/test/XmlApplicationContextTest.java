@@ -3,6 +3,7 @@ package spring.test;
 import com.alibaba.druid.pool.DruidDataSource;
 import org.junit.Test;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -22,8 +23,8 @@ import java.util.Set;
 public class XmlApplicationContextTest {
     @Test
     public void xmlContext(){
-        ClassPathXmlApplicationContext classPathXmlApplicationContext=new ClassPathXmlApplicationContext("applicationContext.xml");
-        classPathXmlApplicationContext.getBean("swaggerpersonController");
+        ApplicationContext applicationContext=new ClassPathXmlApplicationContext("applicationContext.xml");
+        applicationContext.getBean("swaggerpersonController");
         //System.out.println(BasicDataSource.getUrl());
     }
 

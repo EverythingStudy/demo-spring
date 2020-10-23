@@ -1,5 +1,6 @@
 package spring.controller;
 
+import org.springframework.beans.factory.annotation.Required;
 import spring.entity.Swaggerperson;
 import spring.service.SwaggerpersonService;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +27,9 @@ public class SwaggerpersonController {
      * @param id 主键
      * @return 单条数据
      */
-    @RequestMapping(value = "getMapping",method = RequestMethod.GET)
-    public Swaggerperson selectOne(Integer id) {
+    @Required
+    @RequestMapping(value = "getMapping/{id}",method = RequestMethod.GET)
+    public Swaggerperson selectOne(Integer num,@PathVariable int id) {
         return this.swaggerpersonService.queryById(id);
     }
 
