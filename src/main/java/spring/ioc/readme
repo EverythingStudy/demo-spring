@@ -5,3 +5,5 @@ SpringIoc流程-tomcat启动servlet容器-->通过web.xml加载spring配置信�
 2.自定义IOC容器类，SpringIocContext--反射实例化bean,initBean--依赖注入属性initBeanField
 3.自定义应用类 SpringIocServiceTest--依赖SpringIocBean作为属性
 4.模拟启动加载容器类--SpringIoc
+
+Spring IoC容器设计原理及高级特性:https://blog.csdn.net/sinat_34341162/article/details/84136910
