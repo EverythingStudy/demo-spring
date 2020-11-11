@@ -22,5 +22,4 @@ public class ServletContextController {
         String test= (String) req.getSession().getServletContext().getAttribute("test");
         System.out.println(test);
     }
-
 }

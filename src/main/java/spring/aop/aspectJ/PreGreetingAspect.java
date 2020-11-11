@@ -12,7 +12,7 @@ import org.aspectj.lang.annotation.DeclareParents;
 @Aspect
 public class PreGreetingAspect {
     @Before(value = "execution(* greetTo(..))")
-        public void beforeGreeting(){
+    public void beforeGreeting(){
         System.out.println("hello word");
     }
     @DeclareParents(value = "spring.aop.aspectJ.NativeWaiter",defaultImpl = SellerImpl.class)

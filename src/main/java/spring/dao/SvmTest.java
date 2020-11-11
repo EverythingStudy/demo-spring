@@ -25,7 +25,7 @@ public class SvmTest implements BeanPostProcessor {
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        System.out.println(bean.getClass().getName()+"2初始化前调用");
+        System.out.println(bean.getClass().getName()+"2初始化后调用");
         return bean;
     }
 }
