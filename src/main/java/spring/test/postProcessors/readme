@@ -1,0 +1,31 @@
+Spring提供了两种后处理bean的扩展接口，分别为BeanPostProcessor和BeanFactoryPostProcessor，这两者在使用上是有所区别的。
+
+BeanPostProcessor：bean级别的处理，针对某个具体的bean进行处理。
+接口提供了两个方法，分别是初始化前和初始化后执行方法，具体这个初始化方法指的是什么方法，类似我们在定义bean时，定义了init-method所指定的方法<bean id = "xxx" class = "xxx" init-method = "init()">
+
+这两个方法分别在init方法前后执行，需要注意一点，我们定义一个类实现了BeanPostProcessor，默认是会对整个Spring容器中所有的bean进行处理。
+
+既然是默认全部处理，那么我们怎么确认我们需要处理的某个具体的bean呢？
+
+可以看到方法中有两个参数。类型分别为Object和String，第一个参数是每个bean的实例，第二个参数是每个bean的name或者id属性的值。所以我们可以第二个参数，来确认我们将要处理的具体的bean。
+
+这个的处理是发生在Spring容器的实例化和依赖注入之后。
+
+
+BeanFactoryPostProcessor：BeanFactory级别的处理，是针对整个Bean的工厂进行处理
+
+此接口只提供了一个方法，方法参数为ConfigurableListableBeanFactory beanFactory,
+其中有个方法名为getBeanDefinition的方法，我们可以根据此方法，找到我们定义bean的BeanDefinition对象。然后我们可以对定义的属性进行修改.
+
+BeanDefinition对象是Spring解析完标签bean形成的javabean,这个BeanDefinition就是bean标签对应的javabean。
+
+所以当我们调用BeanFactoryPostProcess方法时，这时候bean还没有实例化，此时bean刚被解析成BeanDefinition对象。
+
+Spring容器初始化bean大致过程 定义bean标签>将bean标签解析成BeanDefinition>调用构造方法实例化(IOC)>属性值得依赖注入(DI)
+
+所以BeanFactoryPostProcess方法的执行是发生在第二部之后，第三步之前。
+
+
+总结：以上两种都为Spring提供的后处理bean的接口，只是两者执行的时机不一样。前者为实例化之后，后者是实例化之前。功能上，后者对bean的处理功能更加强大。
+
+

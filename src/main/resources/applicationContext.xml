@@ -11,34 +11,73 @@
      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
      http://www.springframework.org/schema/aop
      http://www.springframework.org/schema/aop/spring-aop.xsd">
-    <!-- 引入jdbc配置文件 -->
+    <context:component-scan base-package="spring.service,spring.dao"/>
+    <!--1 引入属性文件，在配置中占位使用 -->
     <context:property-placeholder location="classpath:jdbc.properties"/>
-    <!-- 开启注解AOP -->
-    <aop:aspectj-autoproxy proxy-target-class="false"/>
-    <!-- 数据源配置 -->
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+
+    <!--2 配置Druid数据源 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init"
           destroy-method="close">
         <property name="driverClassName" value="${mysql.driver}" />
         <property name="url" value="${mysql.url}" />
-        <property name="username" value="${username}" />
-        <property name="password" value="${password}" />
+        <property name="username" value="${mysql.username}" />
+        <property name="password" value="${mysql.password}" />
         <property name="initialSize" value="5" />        <!-- 初始连接数量 -->
         <property name="maxActive" value="30" />         <!-- 最大连接数量 -->
-        <property name="maxIdle" value="5" />            <!-- 空闲连接数量 -->
+        <property name="minIdle" value="2"/>             <!--最小连接数-->
         <property name="maxWait" value="60000" />       <!-- 一个查询1分钟内没有返回，自动放弃 -->
 
-        <property name="validationQuery" value="SELECT 1" />   <!-- 数据库连接可用性测试语句 -->
+
         <property name="testOnBorrow" value="true" />          <!-- 每次获取一个连接的时候，验证一下连接是否可用，语句在validationQuery里面 -->
+        <property name="testOnReturn" value="false" />
+        <property name="testWhileIdle" value="true" />
         <property name="removeAbandoned" value="true" />       <!-- 自动处理连接未关闭的问题，Setting this to true can recover db connections from poorly written applications which fail to close a connection.  -->
         <property name="removeAbandonedTimeout" value="300" /> <!-- 连接使用后5分钟未关闭，则抛弃 -->
 
-        <!-- 每5分钟检查一次，每次检查3个连接，如果连接空闲时间达到5分钟，则认为可以Evict，从连接池排除
-             空闲的连接是否排除对连接池似乎没有太大影响，我们只需要保证每次获取的连接都可用，所以暂时先不开启 -->
+        <!-- 配置间隔多久进行一次检测 检测需要关闭的空闲连接 单位是毫秒 -->
         <property name="timeBetweenEvictionRunsMillis" value="300000" />
-        <property name="numTestsPerEvictionRun" value="3" />
+        <!--配置一个连接在池中最小的生存时间单位是毫秒-->
         <property name="minEvictableIdleTimeMillis" value="320000" />
+        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+        <property name="poolPreparedStatements" value="true" />
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+        <!-- 这里配置提交方式，默认就是TRUE，可以不用配置 -->
+        <property name="defaultAutoCommit" value="true" />
+        <property name="validationQuery" value="SELECT 1" />   <!-- 数据库连接可用性测试语句 -->
+        <property name="filters" value="stat,wall" />
+        <property name="proxyFilters">
+            <list>
+                <ref bean="logFilter" />
+                <ref bean="statFilter"/>
+            </list>
+        </property>
     </bean>
-
+    <bean id="logFilter" class="com.alibaba.druid.filter.logging.Slf4jLogFilter">
+        <property name="statementExecutableSqlLogEnable" value="false" />
+    </bean>
+    <!-- 慢SQL记录 -->
+    <bean id="statFilter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <!-- 慢sql时间设置,即执行时间大于200毫秒的都是慢sql -->
+        <property name="slowSqlMillis" value="200"/>
+        <property name="logSlowSql" value="true"/>
+    </bean>
+    <!--3 会话工厂bean sqlSessionFactoryBean -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--数据源-->
+        <property name="dataSource" ref="dataSource" />
+        <!-- 别名 -->
+        <property name="typeAliasesPackage" value="spring.entity" />
+        <!-- sql映射文件路径 -->
+        <property name="mapperLocations" value="classpath*:mapper/*Dao.xml"></property>
+    </bean>
+    <!--4 自动扫描对象关系映射 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--指定会话工厂，如果当前上下文中只定义了一个则该属性可省去 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <!-- 指定要自动扫描接口的基础包，实现接口 -->
+        <property name="basePackage" value="spring.dao" />
+    </bean>
+    <!--5 声明式事务管理 -->
     <!-- 事务管理器  对MyBatis操作数据库  spring使用JDBC事务控制类 -->
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <!-- 配置数据源 -->
@@ -63,18 +102,20 @@
         <aop:pointcut id="allTestServiceMethod" expression="execution(* spring.service.*.*(..))"/>
         <aop:advisor pointcut-ref="allTestServiceMethod" advice-ref="TestAdvice" />
     </aop:config>
-
-    <!-- MyBatis配置 -->
-    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dataSource" />
-        <property name="typeAliasesPackage" value="wanliyun.entity" />
-    </bean>
-    <!--dao层接口和mybatis映射xml在同一目录下  -->
-    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="basePackage" value="wanliyun.dao" />
-    </bean>
+    <!-- aspectj支持自动代理实现AOP功能-->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
     <!--AOP代理测试-->
     <bean id="nativeWarter" class="spring.aop.aspectJ.NativeWaiter"></bean>
     <bean class="spring.aop.aspectJ.PreGreetingAspect"></bean>
+    <bean class="org.springframework.aop.framework.ProxyFactoryBean"/>
+    <bean class="spring.bean.Role">
+        <property name="id" value="12"/>
+        <property name="name" value="testRole"/>
+
+    </bean>
+    <bean class="spring.bean.User">
+        <property name="name" value="testUser"/>
+        <property name="age" value="12"/>
+    </bean>
 
 </beans>
