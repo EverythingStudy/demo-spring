@@ -1,5 +1,6 @@
 package spring.ioc;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,4 +19,5 @@ public class SpringIocBean {
     public void setName(String name) {
         this.name = name;
     }
+
 }
